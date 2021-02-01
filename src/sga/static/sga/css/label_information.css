@@ -7,6 +7,10 @@
 */
 
 /* Select box placeHolder */
+.errors{
+    text-aling: center;
+    display:none;
+}
 select
 {
     color: #0000007c !important;

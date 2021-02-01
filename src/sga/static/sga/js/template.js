@@ -1,4 +1,4 @@
-let _canvases;
+let canvas;
 
 
 class CanvasHandler
@@ -12,37 +12,37 @@ class CanvasHandler
     }
 }
 
-function save(index_temp, index_local){
-    _canvases.redo = [];
+function save(index_local){
+    canvas.redo = [];
     $('#redo').prop('disabled', true);
-    if (_canvases.state){
-        _canvases.undo.push(_canvases.state);
+    if (canvas.state){
+        canvas.undo.push(canvas.state);
         $('#undo').prop('disabled', false);
     }
-    _canvases.state = JSON.stringify(_canvases.canv_obj);
+    canvas.state = JSON.stringify(canvas.canv_obj);
     if ( window.localStorage.getItem(index_local)){
         window.localStorage.removeItem(index_local)
-        window.localStorage.setItem(index_local, _canvases.canv_obj)
+        window.localStorage.setItem(index_local, canvas.canv_obj)
     }
     else{
-        window.localStorage.setItem(index_local, _canvases.canv_obj)
+        window.localStorage.setItem(index_local, canvas.canv_obj)
     }
 
 }
 function replay(playStack, saveStack, buttonsOn, buttonsOff, index){
     if(saveStack =='redo'){
-        _canvases.redo.push(_canvases.state);
-        if(_canvases.undo.length >= 2)
+        canvas.redo.push(canvas.state);
+        if(canvas.undo.length >= 2)
         {
-            _canvases.state = _canvases.undo.pop();
+            canvas.state = canvas.undo.pop();
         }
 
     }
     else if (saveStack == 'undo'){
-        _canvases.undo.push(_canvases.state);
-        if(_canvases.redo.length >= 1)
+        canvas.undo.push(canvas.state);
+        if(canvas.redo.length >= 1)
         {
-            _canvases.state = _canvases.redo.pop();
+            canvas.state = canvas.redo.pop();
         }
     }
     let on = $(buttonsOn);
@@ -50,32 +50,34 @@ function replay(playStack, saveStack, buttonsOn, buttonsOff, index){
     on.prop('disabled', true);
     off.prop('disabled', true);
 
-    _canvases.canv_obj.clear();
-    _canvases.canv_obj.loadFromJSON(JSON.parse(_canvases.state), function(){
-        _canvases.canv_obj.renderAll();
+    canvas.canv_obj.clear();
+    canvas.canv_obj.loadFromJSON(JSON.parse(canvas.state), function(){
+        canvas.canv_obj.renderAll();
         on.prop('disabled', false);
         if(playStack == 'undo'){
-            if (_canvases.undo.length>=1){
+            if (canvas.undo.length>=1){
                 off.prop('disabled',false);
             }
         }
         else{
-            if (_canvases.redo.length>=1){
+            if (canvas.redo.length>=1){
                 off.prop('disabled',false);
             }
         }
     });
 
 }
-(function( ) {
+
+$(document).ready(function () {
     let formdata = $("#sgaform").serializeArray();
 
     $(".templatepreview").each(function(index, element){
         $.post(element.dataset.href,formdata,function(data, status){
             let json_object = {};
             let newcanvas = new fabric.Canvas(element.id);
+
             $(".img").each((i,e)=>{
-            fabric.Image.fromURL(e.value, function (img) {
+             fabric.Image.fromURL(e.value, function (img) {
              img.scaleToWidth(100);
              img.scaleToHeight(100);
              img.set("top", 0);
@@ -85,10 +87,10 @@ function replay(playStack, saveStack, buttonsOn, buttonsOff, index){
          });
          });
             newcanvas.renderAll();
-            let handler = new CanvasHandler(JSON.stringify(newcanvas), newcanvas);
 
-            _canvases=handler;
-            let index_temp = _canvases.length - 1;
+             canvas = new CanvasHandler(JSON.stringify(newcanvas), newcanvas);
+
+
            /* if( window.localStorage.getItem(element.id)){
                 temp = window.localStorage.getItem(element.id);
                 json_object = JSON.parse(temp)
@@ -96,62 +98,142 @@ function replay(playStack, saveStack, buttonsOn, buttonsOff, index){
             else{*/
             json_object = data.object;
            // }
-            _canvases.canv_obj.loadFromJSON(data.object, function() {
-                _canvases.canv_obj.item(0).selectable = false;
-                _canvases.canv_obj['panning'] = false;
-                _canvases.canv_obj['onselected'] = false;
-                _canvases.canv_obj.on('mouse:wheel', function (opt) {
+            canvas.canv_obj.loadFromJSON(data.object, function() {
+                let view= $(".canvas-container-preview");
+                //printdata();
+                upWidth();
+                //setTop();
+                 // setWidth();
+                  //discard();
+                canvas.canv_obj.item(0).selectable = false;
+                canvas.canv_obj['panning'] = false;
+                canvas.canv_obj['onselected'] = false;
+                canvas.canv_obj.on('mouse:wheel', function (opt) {
                     let delta = opt.e.deltaY;
-                    let zoom = _canvases.canv_obj.getZoom();
+                    let zoom = canvas.canv_obj.getZoom();
                     zoom = zoom + delta / 200;
                     if (zoom > 20) zoom = 20;
                     if (zoom < 0.01) zoom = 0.01;
-                    _canvases.canv_obj.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+                    canvas.canv_obj.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
                     opt.e.preventDefault();
                     opt.e.stopPropagation();
                  });
-                _canvases.canv_obj.on('mouse:up', function () {
-                     _canvases.canv_obj['panning'] = false;
+                canvas.canv_obj.on('mouse:up', function () {
+                     canvas.canv_obj['panning'] = false;
                  });
-                _canvases.canv_obj.on('mouse:dblclick', function () {
-                     if (!_canvases.canv_obj['onselected']) {
-                         _canvases.canv_obj['panning'] = true;
+                canvas.canv_obj.on('mouse:dblclick', function () {
+                     if (!canvas.canv_obj['onselected']) {
+                         canvas.canv_obj['panning'] = true;
                      }
                  });
-                _canvases.canv_obj.on('mouse:move', function (e) {
-                     if (_canvases.canv_obj['panning'] && e && e.e && !_canvases.canv_obj['onselected']) {
+                canvas.canv_obj.on('mouse:move', function (e) {
+                     if (canvas.canv_obj['panning'] && e && e.e && !canvas.canv_obj['onselected']) {
                              var delta = new fabric.Point(e.e.movementX, e.e.movementY);
-                             _canvases.canv_obj.relativePan(delta);
+                             canvas.canv_obj.relativePan(delta);
                      }
                  });
-                _canvases.canv_obj.on('object:selected', function () {
-                     _canvases.canv_obj['onselected'] = true;
+                canvas.canv_obj.on('object:selected', function () {
+                     canvas.canv_obj['onselected'] = true;
                  });
-                _canvases.canv_obj.on('before:selection:cleared', function () {
-                     _canvases.canv_obj['onselected'] = false;
+                canvas.canv_obj.on('before:selection:cleared', function () {
+                     canvas.canv_obj['onselected'] = false;
                  });
-                _canvases.canv_obj.on('object:modified', function (e) {
-                       save(index_temp,element.id);
+                canvas.canv_obj.on('object:modified', function (e) {
+                       save(element.id);
                  });
 
-                let canvas_container_preview = $(".canvas-container-preview");
-                let height = canvas_container_preview.height();
+                let height = view.height();
                 if (height < 400){
                     height = 400;
                 }
-                let width = canvas_container_preview.width();
+                let width = view.width();
+                console.log(width)
                 if(width < 400 ){
                     width = 400;
                 }
-                _canvases.canv_obj.setWidth(width);
-                _canvases.canv_obj.setHeight(height);
-                _canvases.canv_obj.renderAll();
+                canvas.canv_obj.setWidth(width);
+                canvas.canv_obj.setHeight(height);
+                canvas.canv_obj.renderAll();
 
-                save(index_temp,element.id);
+                save(element.id);
             });
           });
     });
-})();
+});
+
+function printdata(){
+    for(x in canvas.canv_obj.getObjects()){
+        console.log(canvas.canv_obj.getObjects()[x].top);
+    }
+}
+function upWidth(){
+       for(let x in canvas.canv_obj.getObjects()){
+               if(canvas.canv_obj.getObjects()[x].type=='textbox'){
+                       let aux=canvas.canv_obj.getObjects()[x];
+                       aux.width*=1.5;
+                       let c=aux.left+aux.width-(1400);
+                       aux.width-=(aux.left+aux.width)>=1450?c:0;
+                       canvas.canv_obj.getObjects()[x].width=aux.width
+
+                }
+                }
+	}
+	function setWidth(){
+    let i=0;
+       for(let x in canvas.canv_obj.getObjects()){
+        let canva=canvas.canv_obj.getObjects()[x];
+         for(let y in canvas.canv_obj.getObjects()){
+            let res=canvas.canv_obj.getObjects()[y];
+             if(canva.left<res.left&&x!=y && (canva.width+canva.left)>res.left && (res.top+res.height>canva.top) && (canva.width+canva.left)<1200){
+                       console.log(canva.width,''+canva.left,canva.text)
+                       console.log(res)
+                       canva.width-=(canva.width+canva.left)-res.left;
+                       canvas.canv_obj.getObjects()[x].width=canva.width
+                        x++;
+                }
+                }
+	}
+	}
+
+function discard(){
+       for(let x in canvas.canv_obj.getObjects()){
+        let a=canvas.canv_obj.getObjects()[x];
+         for(let y in canvas.canv_obj.getObjects()){
+            let b=canvas.canv_obj.getObjects()[y];
+             if(a.type=="textbox" && x!=y && a.width+a.left>b.left && b.top+b.height>a.top&& (a.width+a.left<1200)){
+                canvas.canv_obj.getObjects()[x].width*=0.9;
+        }
+        }
+}
+}
+
+function setTop(){
+    let i=1;
+    for(let x in canvas.canv_obj.getObjects()){
+        canva=canvas.canv_obj.getObjects()[x]
+
+        other=canvas.canv_obj.getObjects()[i]
+
+        if(canva.top+canva.height< other.top && (canva.left<other.left||canva.left>other.left)){
+            canvas.canv_obj.getObjects()[i].top=canva.top+canva.heigth;
+    }
+        i++;
+        if(i>=canvas.canv_obj.getObjects().length){
+        break;
+        }
+        }
+}
+function updateTop(){
+       for(let x in canvas.canv_obj.getObjects()){
+        let a=canvas.canv_obj.getObjects()[x];
+         for(let y in canvas.canv_obj.getObjects()){
+            let b=canvas.canv_obj.getObjects()[y];
+             if(a.type=="textbox" && x!=y && a.width+a.left>b.left && b.top+b.height>a.top&& (a.width+a.left<1200)){
+                canvas.canv_obj.getObjects()[x].width*=0.9;
+        }
+        }
+}
+}
 
 function undoFunction(ele){
     replay('undo','redo','#redo','#undo', ele.dataset.order);
@@ -163,15 +245,15 @@ function redoFunction(ele){
 
 $(document).ready(function(){
     $(".canvaspng").on('click', function(){
-         let canvas =  _canvases;
-         this.href=canvas.toDataURL({ format: 'png', quality: 0.8});
+         let canva =  canvas;
+         this.href=canva.toDataURL({ format: 'png', quality: 0.8});
     });
 });
 
 function get_canvas(pk){
-        let id = _canvases.canv_obj.lowerCanvasEl.id;
+        let id = canvas.canv_obj.lowerCanvasEl.id;
         if (id === "preview_" + pk.toString())
-            return _canvases.canv_obj;
+            return canvas.canv_obj;
      }
 
 

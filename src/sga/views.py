@@ -300,13 +300,23 @@ def show_editor_preview(request, pk):
              'barcode_url': request.session['barcode_file_url']}
     representation = utils_pictograms.pic_selected(representation,
                                                    pictograms, files)
+    representation['objects']=orderby_elements(representation['objects'])
     context = {
         'object': representation,
         'preview': obj.preview
     }
+    print(representation['objects'])
 
     return JsonResponse(context)
-
+def orderby_elements(datalist):
+    aux=""
+    for i in range(len(datalist) - 1, 0, -1):
+        for j in range(i):
+            if datalist[j]['top'] > datalist[j + 1]['top']:
+                aux = datalist[j]
+                datalist[j] = datalist[j + 1]
+                datalist[j + 1] = aux
+    return datalist
 def label_information(request):
     # Includes recipient search
     context = RecipientSize.objects.all()
@@ -381,15 +391,13 @@ def index_organilab(request):
     return render(request, 'index_organilab.html', {'form': form})
 
 
-@csrf_exempt
 def get_prudence_advice(request):
-    code = request.POST.get('code', '')
-    data = PrudenceAdvice.objects.get(code=code)
+    pk = request.POST.get('pk', '')
+    data = PrudenceAdvice.objects.get(pk=pk)
     return HttpResponse(data.name)
 
 
-@csrf_exempt
 def get_danger_indication(request):
-    code = request.POST.get('code', '')
-    data = DangerIndication.objects.get(code=code)
+    pk = request.POST.get('pk', '')
+    data = DangerIndication.objects.get(pk=pk)
     return HttpResponse(data.description)

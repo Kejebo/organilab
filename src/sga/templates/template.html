@@ -39,8 +39,10 @@
                     {% csrf_token %}
             {{form|bootstrap}}
              {%for file in files %}
+                {% if file %}
               <input class="img" value="{{file}}" type="hidden">
-              {% endfor%}
+                {% endif %}
+          {% endfor%}
             <input type="submit" class="btn btn-success" value="{% trans 'Change information' %}">
         </form>
     </div>
@@ -68,6 +70,7 @@
                data-href="{% url 'sga:show_editor_preview' sgatemplates.pk %}"></canvas>
 
       </div>
+      <lead>Nota: Segun al reglamento del país hay elementos que encuentra "..." esta parte el usuario puede editarlo</lead>
   </div>
 </div>
       </div>

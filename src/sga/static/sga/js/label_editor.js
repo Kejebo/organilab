@@ -274,11 +274,11 @@ function create_container(message,classname){
 $(document).ready(function () {
 $('#id_prudence_advice').change(function(){
 
-    let code=$(this).find('option:selected').text().split(' ');
+    let pk=$(this).find('option:selected').val();
     $.ajax({
         url: 'sga/prudence/',
         type:'POST',
-        data: {'code':code[0]},
+        data: {pk},
         datatype:'json',
         success: function (message) {
         if($('.prudence_message').length==0){
@@ -290,12 +290,36 @@ $('#id_prudence_advice').change(function(){
         });
         });
 
+    function getCookie(name) {
+           var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        $.ajaxSetup({
+             beforeSend: function (xhr, settings) {
+                if (!this.crossDomain) {
+                    var csrftoken = getCookie('csrftoken');
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+             }
+        });
+
 $('#id_danger_indication').change(function(){
-    let code=$(this).find('option:selected').text().split(' ');
+    let pk=$(this).find('option:selected').val();
     $.ajax({
         url: 'sga/get_danger_indication/',
         type:'POST',
-        data: {'code':code[0]},
+        data: {pk},
         datatype:'json',
         success: function (message) {
         if($('.danger_message').length==0){

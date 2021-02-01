@@ -84,9 +84,7 @@
                 </div>
             </div>
             <!--============================================================================================================-->
-        </div>
-        <div class="col-sm-6">
-            <!--============================================================================================================-->
+          <!--============================================================================================================-->
             <!--=========================================Comercial information==============================================-->
             <div class="form-group">
                 <label><span class="label label-info">3</span>&nbsp;{% trans 'Commercial Information' %}</label>
@@ -99,10 +97,13 @@
             <!--============================================================================================================-->
             <!--============================================================================================================-->
             <!--=========================================Recipient==========================================================-->
+
+        </div>
+        <div class="col-sm-6">
             <div class="form-group">
-                <label><span class="label label-info">5</span>&nbsp;{% trans 'Recipient' %}</label><br>
+                <label><span class="label label-info">4</span>&nbsp;{% trans 'Recipient' %}</label><br>
                 <!--<a>{{ recipients }}</a>-->
-                <select name="recipients" id="recipients" class="form-control" onchange="changePlaceHolder(this)">
+                    <select name="recipients" id="recipients" class="form-control" onchange="changePlaceHolder(this)">
                     <option disabled selected hidden>{% trans 'Name - Height x Width' %}</option>
 
                     {% if recipients != null %}
@@ -117,6 +118,7 @@
                     {% endfor %}
                     {% endif %}
                 </select>
+               <lead class="errors text-danger">Las medidas de los recipientes y plantillas deben de coincidir</lead>
             </div>
             <!--Add new recipient-->
             <label>{% trans 'Did you find the recipient?' %}</label>&nbsp;&nbsp;<a href="{% url 'admin:sga_recipientsize_add' %}"><u>{% trans 'Create it Here!' %}</u></a><br>
@@ -142,6 +144,7 @@
                     {% endfor %}
                     {% endif %}
                 </select>
+               <lead class="errors text-danger">Las medidas de los recipientes y plantillas deben de coincidir</lead>
             </div>
             <!--Add new recipient-->
             <label>{% trans 'Did you find the template?' %}</label>&nbsp;&nbsp;<a href="{% url 'sga:editor' %}"><u>{% trans 'Create it Here!' %}</u></a><br>
@@ -149,7 +152,7 @@
             <!--============================================================================================================-->
             <!--=========================================Recipient==========================================================-->
             <div class="form-group">
-                <label><span class="label label-info">4</span>&nbsp;{% trans 'Logo and Bar Code' %}</label><br>
+                <label><span class="label label-info">6</span>&nbsp;{% trans 'Logo and Bar Code' %}</label><br>
                 <br>
                 <!--<a>{{ recipients }}</a>-->
                 <input type="file" id="logo" name="logo">
@@ -166,7 +169,7 @@
     <div class="wizard-footer">
                     <div class="pull-right">
                         <input type='submit' class='btn btn-next btn-fill btn-info btn-wd'
-                            name='next' value='{% trans 'Next' %}' id="Next" />
+                            id="next" name='next' value='{% trans 'Next' %}' id="Next" />
                         </div>
     </div>
 

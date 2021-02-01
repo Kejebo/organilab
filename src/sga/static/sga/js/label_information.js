@@ -70,6 +70,10 @@ $(document).ready(function () {
                 required: true,
                 maxlength: 180
             },
+             templates: {
+                required: true,
+                maxlength: 180
+            },
         }
     });
     // Save label information in JSON
@@ -122,10 +126,27 @@ $(document).ready(function () {
             }
         //}
     });
+  let template=$('#templates');
+  let recipient=$('#recipients');
+$('#templates').change(()=>{
+//    validate_sizes(template.find("option:selected").index(),recipient.find("option:selected").index())
 });
+
+$('#recipients').change(()=>{
+  //  validate_sizes(template.find("option:selected").index(),recipient.find("option:selected").index())
+});
+
+});
+
 // Select box place holder 
 function changePlaceHolder(sel) {
     sel.style.cssText = 'color: #000 !important';
+}
+function validate_sizes(recipient,template){
+
+    if(recipient>0 && template>0){
+        $('.errors').css('display','block');
+    }
 }
 // Element contains a class 
 function hasClass(element, cls) {
